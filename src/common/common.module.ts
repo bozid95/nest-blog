@@ -9,8 +9,20 @@ import { ValidationService } from './validation.service';
 @Module({
   imports: [
     WinstonModule.forRoot({
-      format: winston.format.json(),
-      transports: [new winston.transports.Console({})],
+      format: winston.format.combine(
+        winston.format.timestamp(), // Menambahkan timestamp
+        winston.format.colorize(), // Memberikan warna pada level log
+        winston.format.printf(({ level, message, timestamp, context }) => {
+          // Menyesuaikan format log
+          return `[${timestamp}] [${level}]${context ? ` [${context}]` : ''}: ${message}`;
+        }),
+      ),
+      transports: [
+        new winston.transports.Console(), // Output ke console
+        new winston.transports.File({
+          filename: 'logs/application.log', // Simpan log ke file
+        }),
+      ],
     }),
     ConfigModule.forRoot({ isGlobal: true }),
   ],
